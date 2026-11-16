@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::error::PactVaultError;
+use crate::{error::PactVaultError, math};
 
 /// Global pool state. PDA with seeds ["pool"].
 #[account]
@@ -39,4 +39,55 @@ pub struct InvestorPosition {
     pub investor: Pubkey,
     pub shares: u64,
     pub bump: u8,
+}
+
+/// Where an escrow is in its life. Disputed and Cancelled are not used yet.
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
+pub enum EscrowStatus {
+    Draft,
+    Signed,
+    Active,
+    Submitted,
+    Disputed,
+    Completed,
+    Cancelled,
+}
+
+/// One client/freelancer contract.
+/// PDA with seeds ["escrow", client, escrow_id as u64 little-endian].
+#[account]
+#[derive(InitSpace)]
+pub struct Escrow {
+    pub escrow_id: u64,
+    pub client: Pubkey,
+    pub freelancer: Pubkey,
+    pub resolver: Pubkey,
+    pub mint: Pubkey,
+    pub total_amount: u64,
+    pub upfront_bps: u16,
+    pub contract_hash: [u8; 32],
+    pub client_signed: bool,
+    pub freelancer_signed: bool,
+    pub status: EscrowStatus,
+    /// Unix time. Must be in the future at creation; no rule uses it yet.
+    pub deadline: i64,
+    pub review_window_secs: i64,
+    /// Unix time of `submit_work`; 0 until then.
+    pub submitted_at: i64,
+    pub proof_hash: [u8; 32],
+    /// Tokens advanced from the pool; 0 if no advance was taken.
+    pub advance_amount: u64,
+    pub bump: u8,
+}
+
+impl Escrow {
+    /// Tokens paid to the freelancer when the escrow is funded.
+    pub fn upfront_amount(&self) -> Result<u64> {
+        math::bps_of(self.total_amount, self.upfront_bps)
+    }
+
+    /// Tokens held in the escrow vault after the upfront payment.
+    pub fn locked_amount(&self) -> Result<u64> {
+        math::locked_amount(self.total_amount, self.upfront_bps)
+    }
 }

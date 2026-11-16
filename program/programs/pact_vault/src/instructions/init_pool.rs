@@ -42,6 +42,12 @@ pub struct InitPool<'info> {
 pub fn handle_init_pool(ctx: Context<InitPool>, advance_bps: u16, fee_bps: u16) -> Result<()> {
     require!(advance_bps <= MAX_BPS, PactVaultError::InvalidBps);
     require!(fee_bps <= MAX_BPS, PactVaultError::InvalidBps);
+    // Settlement pays the pool advance + fee out of the locked amount, so the
+    // two rates together must not exceed 100% or settle could never succeed.
+    require!(
+        advance_bps as u32 + fee_bps as u32 <= MAX_BPS as u32,
+        PactVaultError::InvalidBpsSum
+    );
 
     ctx.accounts.pool.set_inner(Pool {
         admin: ctx.accounts.admin.key(),

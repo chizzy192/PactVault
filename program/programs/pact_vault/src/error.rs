@@ -26,4 +26,36 @@ pub enum PactVaultError {
     MathOverflow,
     #[msg("Pool mint must have 6 decimals")]
     InvalidMintDecimals,
+    #[msg("advance_bps + fee_bps must not exceed 10000")]
+    InvalidBpsSum,
+    #[msg("Upfront basis points must not exceed 5000")]
+    InvalidUpfrontBps,
+    #[msg("Client and freelancer must be different wallets")]
+    SameParty,
+    #[msg("Resolver must differ from both the client and the freelancer")]
+    InvalidResolver,
+    #[msg("Review window must be between 60 and 604800 seconds")]
+    InvalidReviewWindow,
+    #[msg("Deadline must be in the future")]
+    InvalidDeadline,
+    #[msg("Escrow is not in the right status for this action")]
+    InvalidEscrowStatus,
+    #[msg("Contract hash does not match the escrow")]
+    ContractHashMismatch,
+    #[msg("This party has already signed the contract")]
+    AlreadySigned,
+    #[msg("Signer is neither the client nor the freelancer")]
+    NotParty,
+    #[msg("Signer is not the escrow's client")]
+    NotClient,
+    #[msg("Signer is not the escrow's freelancer")]
+    NotFreelancer,
+    #[msg("An advance has already been taken on this escrow")]
+    AdvanceAlreadyTaken,
+    #[msg("Advance would be zero")]
+    ZeroAdvance,
+    #[msg("The client's review window has not ended yet")]
+    ReviewWindowOpen,
+    #[msg("Token account is not owned by the escrow's freelancer")]
+    InvalidFreelancerTokenAccount,
 }

@@ -114,10 +114,17 @@ describe("pact_vault", () => {
   }
 
   /** Calls init_pool, by default as the real admin with the 6-decimal mint. */
-  const initPool = (opts: { signer?: Keypair; mint?: PublicKey } = {}) => {
+  const initPool = (
+    opts: {
+      signer?: Keypair;
+      mint?: PublicKey;
+      advanceBps?: number;
+      feeBps?: number;
+    } = {}
+  ) => {
     const signer = opts.signer ?? admin;
     return program.methods
-      .initPool(ADVANCE_BPS, FEE_BPS)
+      .initPool(opts.advanceBps ?? ADVANCE_BPS, opts.feeBps ?? FEE_BPS)
       .accountsPartial({
         admin: signer.publicKey,
         pool: poolPda,
@@ -195,6 +202,14 @@ describe("pact_vault", () => {
     await expectAnchorError(
       initPool({ mint: nineDecimalMint }),
       "InvalidMintDecimals"
+    );
+    expect(await connection.getAccountInfo(poolPda)).to.equal(null);
+  });
+
+  it("0c. init_pool with advance_bps + fee_bps above 10000 fails", async () => {
+    await expectAnchorError(
+      initPool({ advanceBps: 8000, feeBps: 2001 }),
+      "InvalidBpsSum"
     );
     expect(await connection.getAccountInfo(poolPda)).to.equal(null);
   });

@@ -1,11 +1,54 @@
-//! Share math, kept free of accounts so it can be unit tested on its own.
+//! Share and escrow math, kept free of accounts so it can be unit tested on
+//! its own.
 //!
-//! Both conversions round down, so rounding always favours the pool and
-//! never lets an investor take out more than they put in.
+//! Every division rounds down. For shares that means rounding favours the
+//! pool. For escrows, upfront, advance and fee all round down, and whatever
+//! rounding leaves over goes to the freelancer at settlement.
 
 use anchor_lang::prelude::*;
 
-use crate::error::PactVaultError;
+use crate::{constants::MAX_BPS, error::PactVaultError};
+
+/// `amount * bps / 10000`, rounded down.
+pub fn bps_of(amount: u64, bps: u16) -> Result<u64> {
+    mul_div(amount, bps as u64, MAX_BPS as u64)
+}
+
+/// What stays in the escrow vault after the upfront payment.
+pub fn locked_amount(total_amount: u64, upfront_bps: u16) -> Result<u64> {
+    total_amount
+        .checked_sub(bps_of(total_amount, upfront_bps)?)
+        .ok_or_else(|| error!(PactVaultError::MathOverflow))
+}
+
+/// How the locked tokens are split when an escrow settles.
+#[derive(Debug, PartialEq, Eq)]
+pub struct Settlement {
+    pub fee: u64,
+    /// Advance repaid plus fee; goes back to the pool.
+    pub to_pool: u64,
+    /// Everything else; goes to the freelancer.
+    pub to_freelancer: u64,
+}
+
+/// Splits `locked` between the pool and the freelancer.
+///
+/// Cannot underflow while `advance_bps + fee_bps <= 10000`, which
+/// `init_pool` enforces.
+pub fn settlement(locked: u64, advance_amount: u64, fee_bps: u16) -> Result<Settlement> {
+    let fee = bps_of(locked, fee_bps)?;
+    let to_pool = advance_amount
+        .checked_add(fee)
+        .ok_or_else(|| error!(PactVaultError::MathOverflow))?;
+    let to_freelancer = locked
+        .checked_sub(to_pool)
+        .ok_or_else(|| error!(PactVaultError::MathOverflow))?;
+    Ok(Settlement {
+        fee,
+        to_pool,
+        to_freelancer,
+    })
+}
 
 /// Shares to mint for a deposit of `amount` tokens.
 pub fn shares_for_deposit(amount: u64, total_shares: u64, pool_value: u64) -> Result<u64> {
@@ -85,5 +128,69 @@ mod tests {
     #[test]
     fn zero_total_shares_on_withdraw_is_an_error() {
         assert!(amount_for_shares(100, 0, 0).is_err());
+    }
+
+    // ---------- escrow math (6 decimals: 1 token = 1_000_000) ----------
+
+    const T: u64 = 1_000_000;
+
+    #[test]
+    fn spec_a_no_advance_200_at_50_percent() {
+        let locked = locked_amount(200 * T, 5_000).unwrap();
+        assert_eq!(bps_of(200 * T, 5_000).unwrap(), 100 * T);
+        assert_eq!(locked, 100 * T);
+        assert_eq!(
+            settlement(locked, 0, 300).unwrap(),
+            Settlement {
+                fee: 3 * T,
+                to_pool: 3 * T,
+                to_freelancer: 97 * T
+            }
+        );
+    }
+
+    #[test]
+    fn spec_b_advance_200_at_50_percent() {
+        let locked = locked_amount(200 * T, 5_000).unwrap();
+        let advance = bps_of(locked, 8_000).unwrap();
+        assert_eq!(advance, 80 * T);
+        assert_eq!(
+            settlement(locked, advance, 300).unwrap(),
+            Settlement {
+                fee: 3 * T,
+                to_pool: 83 * T,
+                to_freelancer: 17 * T
+            }
+        );
+    }
+
+    #[test]
+    fn spec_c_advance_200_at_20_percent() {
+        assert_eq!(bps_of(200 * T, 2_000).unwrap(), 40 * T);
+        let locked = locked_amount(200 * T, 2_000).unwrap();
+        let advance = bps_of(locked, 8_000).unwrap();
+        assert_eq!(advance, 128 * T);
+        assert_eq!(
+            settlement(locked, advance, 300).unwrap(),
+            Settlement {
+                fee: 4_800_000,
+                to_pool: 132_800_000,
+                to_freelancer: 27_200_000
+            }
+        );
+    }
+
+    #[test]
+    fn settlement_never_underflows_when_rates_sum_to_100_percent() {
+        // Worst case rounding with advance_bps + fee_bps == 10000.
+        for locked in [1, 3, 7, 9_999, 10_001, u64::MAX] {
+            let advance = bps_of(locked, 9_999).unwrap();
+            assert!(settlement(locked, advance, 1).is_ok());
+        }
+    }
+
+    #[test]
+    fn settlement_rejects_payouts_above_locked() {
+        assert!(settlement(100, 99, 300).is_err());
     }
 }
