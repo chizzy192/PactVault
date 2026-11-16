@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T00:00:00Z",
+  "title": "Design System: PactVault",
+  "extensions": {
+    "colorMeta": {
+      "vault-green": { "role": "primary", "displayName": "Vault Green", "canonical": "#0f7a4f", "darkPair": "vault-green-dark", "tonalRamp": ["#062a1b", "#0b4a31", "#0b5e3c", "#0f7a4f", "#2f9a6c", "#5adba0", "#a8e6c8", "#e3f1ea"] },
+      "vault-green-dark": { "role": "primary", "displayName": "Vault Green (dark mode)", "canonical": "#3fcf8e", "tonalRamp": ["#143326", "#1f5a40", "#2c8a5f", "#36b07a", "#3fcf8e", "#5adba0", "#9ae9c4", "#d9f6e8"] },
+      "ledger-blue": { "role": "secondary", "displayName": "Ledger Blue", "canonical": "#1f5fa8", "darkPair": "ledger-blue-dark", "tonalRamp": ["#0b2240", "#133a6b", "#1a4d89", "#1f5fa8", "#3f7fc6", "#6fb1f0", "#b3d4f5", "#e6eef8"] },
+      "thread-teal": { "role": "tertiary", "displayName": "Thread Teal", "canonical": "#12897f", "darkPair": "thread-teal-dark", "note": "Non-text only.", "tonalRamp": ["#06302c", "#0a4e48", "#0e6b63", "#12897f", "#2fa89d", "#4cc9bd", "#a3e3dc", "#e1f5f2"] },
+      "ground": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f7f6f1", "darkPair": "ground-dark", "tonalRamp": ["#1d1c18", "#3d3b34", "#6b6960", "#a3a196", "#cfcdc2", "#e3e1d8", "#eeede6", "#f7f6f1"] },
+      "card": { "role": "neutral", "displayName": "Card White", "canonical": "#ffffff", "darkPair": "card-dark" },
+      "ink": { "role": "neutral", "displayName": "Deep Ledger Ink", "canonical": "#13231c", "darkPair": "ink-dark", "tonalRamp": ["#0b1512", "#13231c", "#22352e", "#2c4239", "#4f5f57", "#7d8b84", "#a9b5ae", "#edefe9"] },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#4f5f57", "darkPair": "ink-muted-dark" },
+      "stone": { "role": "neutral", "displayName": "Stone", "canonical": "#eeede6", "darkPair": "stone-dark" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e3e1d8", "darkPair": "hairline-dark" },
+      "alarm-red": { "role": "neutral", "displayName": "Alarm Red", "canonical": "#b42318", "darkPair": "alarm-red-dark", "note": "Errors only." },
+      "ground-dark": { "role": "neutral", "displayName": "Green-Black Ground", "canonical": "#0b1512" },
+      "card-dark": { "role": "neutral", "displayName": "Green-Black Card", "canonical": "#12201b" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The home statement, one beat per line." },
+      "headline": { "displayName": "Headline", "purpose": "H1 on operational pages (faucet)." },
+      "money": { "displayName": "Money", "purpose": "Headline balances, green, tabular, unit beside in Public Sans." },
+      "title": { "displayName": "Title", "purpose": "Stage and section titles." },
+      "lead": { "displayName": "Lead", "purpose": "The one plain sentence under a headline, 44 to 52ch." },
+      "body": { "displayName": "Body", "purpose": "Stage descriptions, helper text, ledger rows." },
+      "label": { "displayName": "Label", "purpose": "Badges, units, fine print." },
+      "mono": { "displayName": "Mono", "purpose": "Wallet, mint and transaction addresses only." }
+    },
+    "shadows": [
+      { "name": "button-rest", "value": "0 1px 2px rgb(11 21 18 / 0.12)", "purpose": "Under the filled green button only." },
+      { "name": "ledger-lift", "value": "0 8px 24px -16px rgb(11 21 18 / 0.35)", "purpose": "The example ledger card." },
+      { "name": "panel-lift", "value": "0 12px 32px -24px rgb(11 21 18 / 0.4)", "purpose": "The main operational panel." },
+      { "name": "modal", "value": "0 16px 48px -12px rgb(11 21 18 / 0.35)", "purpose": "Wallet picker modal, over a rgb(11 21 18 / 0.55) scrim." },
+      { "name": "focus-ring", "value": "outline: 2px solid var(--ring); outline-offset: 2px", "purpose": "Global :focus-visible, teal." }
+    ],
+    "motion": [
+      { "name": "press", "value": "translateY(1px) on :active", "purpose": "Buttons acknowledge a press." },
+      { "name": "skeleton-pulse", "value": "animate-pulse on a Stone bar", "purpose": "Balance loading placeholder." },
+      { "name": "refresh-spin", "value": "animate-spin on the teal refresh icon", "purpose": "Balances refreshing." },
+      { "name": "theme-switch", "value": "transitions disabled on theme change", "purpose": "Theme toggles without colour animation." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ],
+    "theming": {
+      "strategy": "next-themes, class attribute, defaultTheme system, manual Light / Dark / System toggle",
+      "darkTokens": "Every color key with a -dark suffix is the .dark value of the same CSS custom property."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action per page. Green fill; dark text on green in dark mode.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/></svg>Connect wallet</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 20px; border: 1px solid transparent; border-radius: 10px; background: var(--primary, #0f7a4f); color: var(--primary-foreground, #ffffff); font-family: var(--font-sans, 'Public Sans', sans-serif); font-size: 0.95rem; font-weight: 500; box-shadow: 0 1px 2px rgb(11 21 18 / 0.12); cursor: pointer; transition: background 0.15s; } .ds-btn-primary:hover { background: var(--primary-hover, #0b5e3c); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring, #12897f); outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Ghost Icon Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Theme toggle trigger: transparent, Stone on hover, teal icon.",
+      "html": "<button class=\"ds-btn-ghost\" aria-label=\"Change theme\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/></svg></button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--teal, #12897f); cursor: pointer; transition: background 0.15s; } .ds-btn-ghost:hover { background: var(--muted, #eeede6); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--ring, #12897f); outline-offset: 2px; }"
+    },
+    {
+      "name": "Identity Badge",
+      "kind": "chip",
+      "refersTo": "badge-identity",
+      "description": "Blue pill for the Devnet label and the connected wallet address.",
+      "html": "<span class=\"ds-badge-info\">Devnet</span> <a class=\"ds-badge-info ds-badge-wallet\" href=\"#\"><span class=\"ds-mono\">7xKp…Q9aR</span></a>",
+      "css": ".ds-badge-info { display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 2px 8px; border-radius: 26px; background: var(--info-soft, #e6eef8); color: var(--info, #1f5fa8); font-family: var(--font-sans, 'Public Sans', sans-serif); font-size: 0.75rem; font-weight: 500; text-decoration: none; white-space: nowrap; } .ds-badge-wallet { height: 28px; padding: 0 10px; font-size: 0.875rem; } .ds-badge-wallet:hover { text-decoration: underline; } .ds-badge-info:focus-visible { outline: 2px solid var(--ring, #12897f); outline-offset: 2px; } .ds-mono { font-family: var(--font-mono, 'Geist Mono', monospace); font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Wordmark with green Vault, blue Devnet badge, blue nav link with teal current-page underline.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-wordmark\" href=\"#\">Pact<span>Vault</span></a><span class=\"ds-badge-info\">Devnet</span><nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\">Faucet</a></nav></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 32px; border-bottom: 1px solid var(--border, #e3e1d8); background: var(--background, #f7f6f1); } .ds-wordmark { font-family: var(--font-heading, 'Space Grotesk', sans-serif); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.025em; color: var(--foreground, #13231c); text-decoration: none; } .ds-wordmark span { color: var(--primary, #0f7a4f); } .ds-header .ds-badge-info { display: inline-flex; align-items: center; height: 20px; padding: 2px 8px; border-radius: 26px; background: var(--info-soft, #e6eef8); color: var(--info, #1f5fa8); font-size: 0.75rem; font-weight: 500; } .ds-nav { margin-left: auto; } .ds-nav-link { padding: 4px 8px; border-radius: 8px; color: var(--info, #1f5fa8); font-size: 0.875rem; font-weight: 500; text-decoration: none; text-underline-offset: 0.2em; } .ds-nav-link:hover { text-decoration: underline; } .ds-nav-link[aria-current='page'] { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--teal, #12897f) 60%, transparent); text-decoration-thickness: 2px; } .ds-nav-link:focus-visible { outline: 2px solid var(--ring, #12897f); outline-offset: 2px; }"
+    },
+    {
+      "name": "Pact Thread",
+      "kind": "custom",
+      "refersTo": "ledger",
+      "description": "Signature sequence: teal-ringed icon stages joined by a teal hairline, ending on a green money ledger.",
+      "html": "<ol class=\"ds-thread\"><li><span class=\"ds-ring\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg></span><div><h3>Lock the vault</h3><p>Your client locks the full payment before work starts.</p></div></li><li><span class=\"ds-ring\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg></span><div><h3>Get paid</h3><p>Submit the work and take up to 80% of the rest at once.</p><figure class=\"ds-ledger\"><figcaption>Example: a 200 USDC pact with 50% upfront</figcaption><dl><div><dt>Advance, when you submit</dt><dd>80.00 <small>USDC</small></dd></div><div><dt>Balance, when your client approves</dt><dd>17.00 <small>USDC</small></dd></div></dl></figure></div></li></ol>",
+      "css": ".ds-thread { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; font-family: var(--font-sans, 'Public Sans', sans-serif); color: var(--foreground, #13231c); } .ds-thread li { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 16px; } .ds-thread li:not(:last-child)::after { content: ''; position: absolute; top: 40px; bottom: -32px; left: 20px; width: 1px; background: color-mix(in srgb, var(--teal, #12897f) 50%, transparent); } .ds-ring { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--teal, #12897f) 40%, transparent); background: var(--card, #ffffff); color: var(--teal, #12897f); } .ds-thread h3 { margin: 6px 0 0; font-family: var(--font-heading, 'Space Grotesk', sans-serif); font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; } .ds-thread p { margin: 4px 0 0; font-size: 0.95rem; line-height: 1.625; color: var(--muted-foreground, #4f5f57); } .ds-ledger { margin: 20px 0 0; max-width: 24rem; padding: 16px; border: 1px solid var(--border, #e3e1d8); border-radius: 14px; background: var(--card, #ffffff); box-shadow: 0 8px 24px -16px rgb(11 21 18 / 0.35); } .ds-ledger figcaption { font-size: 0.875rem; color: var(--muted-foreground, #4f5f57); } .ds-ledger dl { margin: 12px 0 0; } .ds-ledger dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 8px 0; font-size: 0.875rem; } .ds-ledger dl > div + div { border-top: 1px solid color-mix(in srgb, var(--teal, #12897f) 25%, transparent); } .ds-ledger dd { margin: 0; font-weight: 500; color: var(--primary, #0f7a4f); font-variant-numeric: tabular-nums; white-space: nowrap; } .ds-ledger small { font-size: 0.75rem; }"
+    },
+    {
+      "name": "Balance Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Operational panel: hairline border, panel lift, two-up green money readout between teal rules.",
+      "html": "<div class=\"ds-panel\"><dl class=\"ds-balances\"><div><dt>Test USDC</dt><dd>1,000.00<span>USDC</span></dd></div><div><dt>Devnet SOL</dt><dd>0.05<span>SOL</span></dd></div></dl></div>",
+      "css": ".ds-panel { padding: 24px 32px; border: 1px solid var(--border, #e3e1d8); border-radius: 18px; background: var(--card, #ffffff); box-shadow: 0 12px 32px -24px rgb(11 21 18 / 0.4); } .ds-balances { margin: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid color-mix(in srgb, var(--teal, #12897f) 25%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--teal, #12897f) 25%, transparent); } .ds-balances > div { display: grid; gap: 4px; padding: 20px 0; } .ds-balances > div + div { padding-left: 24px; border-left: 1px solid color-mix(in srgb, var(--teal, #12897f) 25%, transparent); } .ds-balances dt { font-family: var(--font-sans, 'Public Sans', sans-serif); font-size: 0.875rem; color: var(--muted-foreground, #4f5f57); } .ds-balances dd { margin: 0; font-family: var(--font-heading, 'Space Grotesk', sans-serif); font-size: clamp(1.6rem, 4vw, 2.1rem); line-height: 1; font-weight: 600; letter-spacing: -0.025em; color: var(--primary, #0f7a4f); font-variant-numeric: tabular-nums; } .ds-balances dd span { margin-left: 6px; font-family: var(--font-sans, 'Public Sans', sans-serif); font-size: 0.875rem; font-weight: 500; }"
+    },
+    {
+      "name": "Status Notices",
+      "kind": "custom",
+      "refersTo": "notice-success",
+      "description": "Inline results: green-soft success with green amount, blue-soft rate limit, red-tint error.",
+      "html": "<p class=\"ds-notice ds-notice-ok\"><b>+1,000.00 USDC</b> sent. <a href=\"#\">View transaction</a></p><p class=\"ds-notice ds-notice-info\">You can request again in 42 minutes.</p><p class=\"ds-notice ds-notice-err\">Could not reach the faucet. Try again.</p>",
+      "css": ".ds-notice { margin: 0 0 8px; padding: 10px 12px; border-radius: 10px; font-family: var(--font-sans, 'Public Sans', sans-serif); font-size: 0.875rem; color: var(--foreground, #13231c); } .ds-notice-ok { background: var(--primary-soft, #e3f1ea); } .ds-notice-ok b { font-weight: 500; color: var(--primary, #0f7a4f); font-variant-numeric: tabular-nums; } .ds-notice a { color: var(--info, #1f5fa8); text-decoration: underline; text-underline-offset: 0.2em; } .ds-notice a:focus-visible { outline: 2px solid var(--ring, #12897f); outline-offset: 2px; } .ds-notice-info { background: var(--info-soft, #e6eef8); } .ds-notice-err { background: color-mix(in srgb, var(--destructive, #b42318) 10%, transparent); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Signed Ledger",
+    "overview": "PactVault reads like a well-kept ledger on warm paper: a calm, trustworthy fintech surface where every figure is legible and every page asks for one thing. The ground is a warm off-white (dark: a deep green-black), content sits on plain white cards with hairline edges, and the ink is a deep green-black rather than pure black. Colour is spent sparingly and by role, never for decoration: green means \"do this\" or \"this is money\", blue means \"this is a link or an identity\", teal draws the quiet structure (icons, dividers, the thread between stages, the focus ring).\n\nDensity is low. Pages are a single column of intent: a large Space Grotesk statement, one plain sentence, one green action, and the real mechanism beside it. The signature device is the pact thread: stages joined by a hairline teal line through outlined teal icon rings, ending on a money state. The system refuses the crypto default of dark neon, gradient text and hero metrics; nothing here implies real money, and devnet is always labelled.\n\nLight and dark are equal citizens. The theme follows the system setting by default with a manual Light / Dark / System toggle (class strategy), and every role has a tuned dark counterpart rather than an inversion.",
+    "keyCharacteristics": [
+      "Warm off-white ground, white cards, deep green ink; dark mode is green-black, not grey.",
+      "Three colour roles with hard boundaries: green for action and money, blue for links and identity, teal for non-text structure.",
+      "One green action per page.",
+      "Money in tabular numerals, in green, with the unit set smaller beside it.",
+      "Hairline borders and teal-tinted dividers over heavy shadows.",
+      "Space Grotesk headings with tight tracking; Public Sans for everything read; Geist Mono only for addresses."
+    ],
+    "rules": [
+      { "name": "The Three Roles Rule", "body": "Green is action and money. Blue is links, info and identity. Teal is structure that is never read. A colour used outside its role is a bug, with one exception: the green \"Vault\" in the wordmark.", "section": "colors" },
+      { "name": "The One Green Action Rule", "body": "Each page has exactly one filled green button. Secondary choices are ghost, outline or quiet text controls.", "section": "colors" },
+      { "name": "The Dark Text On Green Rule", "body": "In dark mode, green buttons carry dark text (on-green-dark), never white.", "section": "colors" },
+      { "name": "The Tabular Money Rule", "body": "Every amount uses tabular numerals and two decimals for USDC; the unit sits after the figure at a smaller size.", "section": "typography" },
+      { "name": "The Mono Is For Addresses Rule", "body": "Geist Mono appears only on wallet, mint and transaction identifiers, shortened as `abcd…wxyz`.", "section": "typography" },
+      { "name": "The Border First Rule", "body": "Every raised surface has a hairline border; the shadow is optional and never replaces the border.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** keep exactly one filled green button per page; it is the page's main action.",
+      "**Do** set every amount in green tabular numerals with the unit smaller beside it.",
+      "**Do** use blue for every link, the Devnet badge and wallet identity badges.",
+      "**Do** keep teal to icons, rings, dividers, the pact thread and the focus ring.",
+      "**Do** use dark text (#0B1512) on green buttons in dark mode.",
+      "**Do** give raised surfaces a hairline border before any shadow, and tint shadows green-black.",
+      "**Do** follow the system theme by default and keep the Light / Dark / System toggle in the header.",
+      "**Do** use the owner-supplied mark files as they are, light and dark variants."
+    ],
+    "donts": [
+      "**Don't** set text in teal; it is below AA at small sizes.",
+      "**Don't** use green for decoration, headings or non-money emphasis (the \"Vault\" wordmark is the only exception).",
+      "**Don't** use dark neon, gradient text or hero metrics.",
+      "**Don't** put white text on the dark-mode green.",
+      "**Don't** use Geist Mono for anything except addresses and identifiers.",
+      "**Don't** redraw or recolour the brand mark."
+    ]
+  }
+}

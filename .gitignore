@@ -26,5 +26,8 @@ test-ledger/
 .vscode/
 .idea/
 
+# Windows download metadata created when copying files into WSL
+*:Zone.Identifier
+
 # Claude Code: per-machine settings (Impeccable hooks live here)
 .claude/settings.local.json

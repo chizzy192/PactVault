@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PactVault">
+  <path d="M16 6 H40 L52 18 V54 A4 4 0 0 1 48 58 H16 A4 4 0 0 1 12 54 V10 A4 4 0 0 1 16 6 Z" fill="#0F7A4F"/>
+  <path d="M40 6 V14 A4 4 0 0 0 44 18 H52 Z" fill="#0B5E3C"/>
+  <circle cx="32" cy="33" r="6" fill="#FFFFFF"/>
+  <path d="M29.5 36 L27.5 47 H36.5 L34.5 36 Z" fill="#FFFFFF"/>
+</svg>

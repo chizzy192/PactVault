@@ -25,30 +25,23 @@ const EXAMPLE = [
   { label: "Balance, when your client approves", amount: "17.00" },
 ] as const;
 
-/**
- * The mechanism as one connected sequence, ending on money in hand.
- * Stacked with a vertical teal thread on small screens; a row with a
- * horizontal thread on large screens.
- */
+/** The mechanism as one connected sequence, ending on money in hand. */
 export function PactSteps() {
   return (
-    <ol className="grid gap-8 lg:grid-cols-3 lg:gap-8">
+    <ol className="grid gap-8">
       {STEPS.map(({ icon: Icon, title, body }, index) => (
-        <li
-          key={title}
-          className="relative grid grid-cols-[2.5rem_1fr] content-start gap-4 lg:grid-cols-1"
-        >
+        <li key={title} className="relative grid grid-cols-[2.5rem_1fr] gap-4">
           {index < STEPS.length - 1 && (
             // Teal thread from this stage to the next (spans the 2rem gap).
             <span
               aria-hidden
-              className="absolute top-10 -bottom-8 left-5 w-px bg-teal/50 lg:top-5 lg:-right-8 lg:bottom-auto lg:left-12 lg:h-px lg:w-auto"
+              className="absolute top-10 -bottom-8 left-5 w-px bg-teal/50"
             />
           )}
           <span className="relative z-10 flex size-10 items-center justify-center rounded-full border border-teal/40 bg-card">
             <Icon className="size-5 text-teal" aria-hidden />
           </span>
-          <div className="pt-1.5 lg:pt-0">
+          <div className="pt-1.5">
             <h2 className="text-lg font-semibold tracking-tight">
               <span className="sr-only">Step {index + 1}: </span>
               {title}

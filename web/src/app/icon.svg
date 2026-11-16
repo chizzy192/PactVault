@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .page { fill: #0F7A4F; }
+    .fold { fill: #0B5E3C; }
+    .key { fill: #FFFFFF; }
+    @media (prefers-color-scheme: dark) {
+      .page { fill: #3FCF8E; }
+      .fold { fill: #1FA56C; }
+      .key { fill: #06281A; }
+    }
+  </style>
+  <path class="page" d="M16 6 H40 L52 18 V54 A4 4 0 0 1 48 58 H16 A4 4 0 0 1 12 54 V10 A4 4 0 0 1 16 6 Z"/>
+  <path class="fold" d="M40 6 V14 A4 4 0 0 0 44 18 H52 Z"/>
+  <circle class="key" cx="32" cy="33" r="6"/>
+  <path class="key" d="M29.5 36 L27.5 47 H36.5 L34.5 36 Z"/>
+</svg>
