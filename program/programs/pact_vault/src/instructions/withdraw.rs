@@ -43,12 +43,11 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, shares: u64) -> Result<()> {
         PactVaultError::InsufficientShares
     );
 
-    let vault_balance = ctx.accounts.vault.amount;
-    let pool_value = ctx.accounts.pool.pool_value(vault_balance)?;
+    let pool_value = ctx.accounts.pool.pool_value()?;
     let amount = math::amount_for_shares(shares, ctx.accounts.pool.total_shares, pool_value)?;
     require!(amount > 0, PactVaultError::WithdrawTooSmall);
     require!(
-        amount <= vault_balance,
+        amount <= ctx.accounts.pool.idle_assets,
         PactVaultError::InsufficientLiquidity
     );
 
@@ -62,6 +61,10 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, shares: u64) -> Result<()> {
     pool.total_shares = pool
         .total_shares
         .checked_sub(shares)
+        .ok_or(PactVaultError::MathOverflow)?;
+    pool.idle_assets = pool
+        .idle_assets
+        .checked_sub(amount)
         .ok_or(PactVaultError::MathOverflow)?;
 
     // The vault is owned by the pool PDA, so the pool "signs" with its seeds.

@@ -5,6 +5,7 @@ import {
   createMint,
   getAccount,
   mintTo,
+  transfer,
 } from "@solana/spl-token";
 import { expect } from "chai";
 import { PactVault } from "../target/types/pact_vault";
@@ -55,6 +56,8 @@ describe("pact_vault", () => {
   const tokenBalance = async (account: PublicKey) =>
     new BN((await getAccount(connection, account)).amount.toString());
 
+  const fetchPool = () => program.account.pool.fetch(poolPda);
+
   const sharesOf = async (investor: PublicKey) =>
     (await program.account.investorPosition.fetch(positionPda(investor)))
       .shares;
@@ -74,21 +77,25 @@ describe("pact_vault", () => {
     expect((error as AnchorError).error.errorCode.code).to.equal(code);
   }
 
+  /** Sends `owner` 1 SOL for fees and rent. */
+  const fundSol = (owner: PublicKey) =>
+    provider.sendAndConfirm(
+      new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: admin.publicKey,
+          toPubkey: owner,
+          lamports: LAMPORTS_PER_SOL,
+        })
+      )
+    );
+
   /** Gives `owner` SOL for fees plus a token account holding `amount`. */
   async function fundInvestor(
     owner: Keypair,
     tokenMint: PublicKey,
     amount: BN
   ) {
-    await provider.sendAndConfirm(
-      new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: admin.publicKey,
-          toPubkey: owner.publicKey,
-          lamports: LAMPORTS_PER_SOL,
-        })
-      )
-    );
+    await fundSol(owner.publicKey);
     const ata = await createAssociatedTokenAccount(
       connection,
       admin,
@@ -106,16 +113,20 @@ describe("pact_vault", () => {
     return ata;
   }
 
-  const initPool = () =>
-    program.methods
+  /** Calls init_pool, by default as the real admin with the 6-decimal mint. */
+  const initPool = (opts: { signer?: Keypair; mint?: PublicKey } = {}) => {
+    const signer = opts.signer ?? admin;
+    return program.methods
       .initPool(ADVANCE_BPS, FEE_BPS)
       .accountsPartial({
-        admin: admin.publicKey,
+        admin: signer.publicKey,
         pool: poolPda,
-        mint,
+        mint: opts.mint ?? mint,
         vault: vaultPda,
       })
+      .signers(signer === admin ? [] : [signer])
       .rpc();
+  };
 
   const deposit = (
     investor: Keypair,
@@ -161,15 +172,43 @@ describe("pact_vault", () => {
 
   // ---------- spec tests ----------
 
+  // The pool is a single PDA, so the init_pool rejections must run before
+  // the successful init_pool in test 1.
+
+  it("0a. init_pool by anyone but ADMIN_PUBKEY fails with Unauthorized", async () => {
+    const intruder = Keypair.generate();
+    await fundSol(intruder.publicKey);
+
+    await expectAnchorError(initPool({ signer: intruder }), "Unauthorized");
+    expect(await connection.getAccountInfo(poolPda)).to.equal(null);
+  });
+
+  it("0b. init_pool with a mint that is not 6 decimals fails", async () => {
+    const nineDecimalMint = await createMint(
+      connection,
+      admin,
+      admin.publicKey,
+      null,
+      9
+    );
+
+    await expectAnchorError(
+      initPool({ mint: nineDecimalMint }),
+      "InvalidMintDecimals"
+    );
+    expect(await connection.getAccountInfo(poolPda)).to.equal(null);
+  });
+
   it("1. init_pool succeeds once; a second init_pool fails", async () => {
     await initPool();
 
-    const pool = await program.account.pool.fetch(poolPda);
+    const pool = await fetchPool();
     expect(pool.admin.toBase58()).to.equal(admin.publicKey.toBase58());
     expect(pool.mint.toBase58()).to.equal(mint.toBase58());
     expect(pool.advanceBps).to.equal(ADVANCE_BPS);
     expect(pool.feeBps).to.equal(FEE_BPS);
     expectBn(pool.totalShares, new BN(0));
+    expectBn(pool.idleAssets, new BN(0));
     expectBn(pool.outstandingAdvances, new BN(0));
 
     let error: unknown;
@@ -189,6 +228,7 @@ describe("pact_vault", () => {
 
     expectBn(await sharesOf(investorA.publicKey), usdc(500));
     expectBn(await tokenBalance(vaultPda), usdc(500));
+    expectBn((await fetchPool()).idleAssets, usdc(500));
   });
 
   it("3. investor B deposits 250 -> 250 shares, vault holds 750", async () => {
@@ -196,10 +236,9 @@ describe("pact_vault", () => {
 
     expectBn(await sharesOf(investorB.publicKey), usdc(250));
     expectBn(await tokenBalance(vaultPda), usdc(750));
-    expectBn(
-      (await program.account.pool.fetch(poolPda)).totalShares,
-      usdc(750)
-    );
+    const pool = await fetchPool();
+    expectBn(pool.totalShares, usdc(750));
+    expectBn(pool.idleAssets, usdc(750));
   });
 
   it("4. A withdraws 200 shares -> receives 200, vault holds 550", async () => {
@@ -213,6 +252,7 @@ describe("pact_vault", () => {
     expectBn((await tokenBalance(ataA)).sub(balanceBefore), usdc(200));
     expectBn(await sharesOf(investorA.publicKey), usdc(300));
     expectBn(await tokenBalance(vaultPda), usdc(550));
+    expectBn((await fetchPool()).idleAssets, usdc(550));
   });
 
   it("5. A cannot withdraw more shares than owned", async () => {
@@ -274,5 +314,67 @@ describe("pact_vault", () => {
       }),
       "Unauthorized"
     );
+  });
+
+  it("9. tokens sent straight to the vault do not change the share price", async () => {
+    // State from the tests above: 550 shares backed by 550 idle tokens,
+    // so 1 share = 1 token.
+    const before = await fetchPool();
+    expectBn(before.totalShares, usdc(550));
+    expectBn(before.idleAssets, usdc(550));
+
+    // Someone transfers 450 tokens directly to the vault, bypassing deposit.
+    const donorAta = await createAssociatedTokenAccount(
+      connection,
+      admin,
+      mint,
+      admin.publicKey
+    );
+    await mintTo(
+      connection,
+      admin,
+      mint,
+      donorAta,
+      admin,
+      BigInt(usdc(450).toString())
+    );
+    await transfer(
+      connection,
+      admin,
+      donorAta,
+      vaultPda,
+      admin,
+      BigInt(usdc(450).toString())
+    );
+
+    // The vault balance went up, but the pool's books did not.
+    expectBn(await tokenBalance(vaultPda), usdc(1_000));
+    const afterDonation = await fetchPool();
+    expectBn(afterDonation.idleAssets, usdc(550));
+    expectBn(afterDonation.totalShares, usdc(550));
+
+    // Deposits are still priced at 1 token per share. Using the live vault
+    // balance would have minted only 100 * 550 / 1000 = 55 shares.
+    const sharesBeforeB = await sharesOf(investorB.publicKey);
+    await deposit(investorB, usdc(100), { mint, investorTokenAccount: ataB });
+    expectBn(
+      (await sharesOf(investorB.publicKey)).sub(sharesBeforeB),
+      usdc(100)
+    );
+
+    // Withdrawals are still priced at 1 token per share. Using the live vault
+    // balance would have paid out 100 * 1100 / 650 = ~169 tokens.
+    const balanceBeforeA = await tokenBalance(ataA);
+    await withdraw(investorA, usdc(100), {
+      investorTokenAccount: ataA,
+      position: positionPda(investorA.publicKey),
+    });
+    expectBn((await tokenBalance(ataA)).sub(balanceBeforeA), usdc(100));
+
+    // Books: 550 + 100 - 100 = 550. The 450 sent directly stays stranded.
+    const after = await fetchPool();
+    expectBn(after.idleAssets, usdc(550));
+    expectBn(after.totalShares, usdc(550));
+    expectBn(await tokenBalance(vaultPda), usdc(1_000));
   });
 });

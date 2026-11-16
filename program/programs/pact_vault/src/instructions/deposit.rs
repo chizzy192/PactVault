@@ -48,7 +48,7 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     require!(amount > 0, PactVaultError::ZeroAmount);
 
     // Price the deposit against the pool *before* the new tokens arrive.
-    let pool_value = ctx.accounts.pool.pool_value(ctx.accounts.vault.amount)?;
+    let pool_value = ctx.accounts.pool.pool_value()?;
     let shares = math::shares_for_deposit(amount, ctx.accounts.pool.total_shares, pool_value)?;
     require!(shares > 0, PactVaultError::DepositTooSmall);
 
@@ -70,6 +70,10 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     pool.total_shares = pool
         .total_shares
         .checked_add(shares)
+        .ok_or(PactVaultError::MathOverflow)?;
+    pool.idle_assets = pool
+        .idle_assets
+        .checked_add(amount)
         .ok_or(PactVaultError::MathOverflow)?;
 
     let position = &mut ctx.accounts.position;

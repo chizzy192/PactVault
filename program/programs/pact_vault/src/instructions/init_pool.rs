@@ -5,7 +5,8 @@ use crate::{constants::*, error::PactVaultError, state::Pool};
 
 #[derive(Accounts)]
 pub struct InitPool<'info> {
-    #[account(mut)]
+    /// Only the hard-coded admin wallet may create the pool.
+    #[account(mut, address = ADMIN_PUBKEY @ PactVaultError::Unauthorized)]
     pub admin: Signer<'info>,
 
     /// `init` fails if the pool already exists, so this can only run once.
@@ -18,6 +19,7 @@ pub struct InitPool<'info> {
     )]
     pub pool: Account<'info, Pool>,
 
+    #[account(constraint = mint.decimals == MINT_DECIMALS @ PactVaultError::InvalidMintDecimals)]
     pub mint: Account<'info, Mint>,
 
     /// Holds every deposited token. Owned by the pool PDA, so only this
@@ -45,6 +47,7 @@ pub fn handle_init_pool(ctx: Context<InitPool>, advance_bps: u16, fee_bps: u16) 
         admin: ctx.accounts.admin.key(),
         mint: ctx.accounts.mint.key(),
         total_shares: 0,
+        idle_assets: 0,
         outstanding_advances: 0,
         advance_bps,
         fee_bps,

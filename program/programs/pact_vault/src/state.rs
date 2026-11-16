@@ -11,6 +11,11 @@ pub struct Pool {
     pub mint: Pubkey,
     /// Sum of every investor's shares.
     pub total_shares: u64,
+    /// Tokens the pool holds and can pay out, as tracked by this program.
+    /// Only `deposit` and `withdraw` (and later stages' own instructions)
+    /// change it. Tokens sent straight to the vault are NOT counted, so the
+    /// live vault balance is never used in any math.
+    pub idle_assets: u64,
     /// Tokens lent out and not yet repaid. Always 0 until stage 2.
     pub outstanding_advances: u64,
     pub advance_bps: u16,
@@ -19,9 +24,9 @@ pub struct Pool {
 }
 
 impl Pool {
-    /// Total value owned by investors: tokens in the vault plus tokens lent out.
-    pub fn pool_value(&self, vault_balance: u64) -> Result<u64> {
-        vault_balance
+    /// Total value owned by investors: idle tokens plus tokens lent out.
+    pub fn pool_value(&self) -> Result<u64> {
+        self.idle_assets
             .checked_add(self.outstanding_advances)
             .ok_or_else(|| error!(PactVaultError::MathOverflow))
     }

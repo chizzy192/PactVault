@@ -14,14 +14,16 @@ pub enum PactVaultError {
     WithdrawTooSmall,
     #[msg("Position does not hold enough shares")]
     InsufficientShares,
-    #[msg("Vault does not hold enough tokens for this withdrawal")]
+    #[msg("Pool does not have enough idle tokens for this withdrawal")]
     InsufficientLiquidity,
     #[msg("Token mint does not match the pool mint")]
     InvalidMint,
     #[msg("Token account is not owned by the investor")]
     InvalidTokenOwner,
-    #[msg("Signer is not the owner of this position")]
+    #[msg("Signer is not allowed to perform this action")]
     Unauthorized,
     #[msg("Arithmetic overflow or division by zero")]
     MathOverflow,
+    #[msg("Pool mint must have 6 decimals")]
+    InvalidMintDecimals,
 }
