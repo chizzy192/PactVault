@@ -16,6 +16,27 @@ A Solana devnet MVP.
 | Admin (only signer allowed to call `init_pool`) | `Gz9TAaKYgLTTsSvr4RwUKCkF6venbiUupUVGv9HESuyq` |
 | Pool mint | Must have 6 decimals |
 
+## Devnet
+
+| | Address |
+|---|---|
+| Program ID | [`DQGA85XVQcpYtrUoTdiKowiekXPF7WcesLPLYB8XKbuh`](https://explorer.solana.com/address/DQGA85XVQcpYtrUoTdiKowiekXPF7WcesLPLYB8XKbuh?cluster=devnet) |
+| Test USDC mint (6 decimals) | [`2KbaBhSxcYdNuxuUM82rKEhAbXx2dVdqSWGLdwbFpUug`](https://explorer.solana.com/address/2KbaBhSxcYdNuxuUM82rKEhAbXx2dVdqSWGLdwbFpUug?cluster=devnet) |
+| Pool (PDA `["pool"]`) | [`E57Vcp5KZE5icQmvWSsPv2gZcWerbqDqpPNVUCgiP6ek`](https://explorer.solana.com/address/E57Vcp5KZE5icQmvWSsPv2gZcWerbqDqpPNVUCgiP6ek?cluster=devnet) |
+| Pool vault (PDA `["pool_vault"]`) | `GJnteV55AAS2Z53cFHcQVFnDakSFKAa7Th3ReoLcznS1` |
+| Faucet (test USDC mint authority) | `C1mHXXTYChRKBHggifChNTcYdfr2CBY4ehWESN6XKTNa` |
+
+The pool was created with `advance_bps = 8000` and `fee_bps = 300`. The test
+USDC mint has no freeze authority; only the faucet key can mint it.
+
+To redeploy or set up again:
+
+```bash
+cd program
+anchor program deploy --provider.cluster devnet          # same program ID
+yarn ts-node scripts/init-devnet.ts <TEST_USDC_MINT>    # once; no-op if the pool exists
+```
+
 ## Accounting
 
 The pool keeps its own ledger and never reads the vault's live token balance
@@ -60,6 +81,33 @@ Amounts, with `locked = total - total * upfront_bps / 10000`:
 `init_pool` requires `advance_bps + fee_bps <= 10000` so the pool's share can
 never exceed the locked amount.
 
+## Web app (`web/`)
+
+Next.js 16 (App Router), TypeScript, Tailwind 4, shadcn/ui, and the Solana
+wallet adapter (Phantom via Wallet Standard). Devnet only.
+
+| Route | What it does |
+|---|---|
+| `/` | Name, tagline, how a pact works, connect wallet |
+| `/faucet` | Connected wallet's SOL and test USDC balances; "Get 1,000 test USDC" |
+| `POST /api/faucet` | `{ "wallet": "<address>" }` → mints 1,000 test USDC (creates the token account if needed) and sends 0.05 SOL if the wallet has < 0.01 SOL. One request per wallet per hour, 5 per IP per hour. |
+
+Run it:
+
+```bash
+cd web
+npm install                  # first time only
+cp .env.example .env.local   # then fill in the three values
+npm run dev                  # http://localhost:3000
+```
+
+`FAUCET_SECRET_KEY` is the faucet keypair's JSON array (the test USDC mint
+authority). It is read only on the server and never sent to the browser. The
+admin wallet and program keypair are never used by the web app.
+
+After changing the program, run `anchor build` in `program/` and then
+`npm run sync-idl` in `web/` to copy the new IDL and types.
+
 ## Layout
 
 | Path | What it is |
@@ -67,7 +115,9 @@ never exceed the locked amount.
 | `program/` | Anchor workspace (Rust program + TypeScript tests) |
 | `program/programs/pact_vault/src/` | The on-chain program |
 | `program/tests/` | Integration tests run by `anchor test` |
-| `web/` | Front end (empty until a later stage) |
+| `program/scripts/` | Devnet setup (`init-devnet.ts`) |
+| `web/` | Next.js front end and faucet API |
+| `PRODUCT.md`, `.impeccable/`, `.claude/` | Product context and the Impeccable design skill |
 
 Inside `src/`: `lib.rs` lists the instructions, `instructions/` holds one file
 per instruction, `state.rs` the account layouts, `math.rs` the share math,

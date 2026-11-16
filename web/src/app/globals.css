@@ -1,0 +1,205 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-space-grotesk), var(--font-public-sans), sans-serif;
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-teal: var(--teal);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * PactVault palette (PRODUCT.md, Brand Commitments).
+ * Green: the one main action per page + money states.
+ * Blue (info): links, info, identity badges.
+ * Teal: non-text accents only (icons, focus ring, dividers, charts).
+ */
+:root {
+  --background: #f7f6f1;
+  --foreground: #13231c;
+  --card: #ffffff;
+  --card-foreground: #13231c;
+  --popover: #ffffff;
+  --popover-foreground: #13231c;
+  --primary: #0f7a4f;
+  --primary-foreground: #ffffff;
+  --primary-hover: #0b5e3c;
+  --primary-soft: #e3f1ea;
+  --secondary: #eeede6;
+  --secondary-foreground: #13231c;
+  --muted: #eeede6;
+  --muted-foreground: #4f5f57;
+  --accent: #eeede6;
+  --accent-foreground: #13231c;
+  --destructive: #b42318;
+  --border: #e3e1d8;
+  --input: #d6d4c9;
+  --ring: #12897f;
+  --info: #1f5fa8;
+  --info-foreground: #ffffff;
+  --info-soft: #e6eef8;
+  --teal: #12897f;
+  --chart-1: #12897f;
+  --chart-2: #0f7a4f;
+  --chart-3: #1f5fa8;
+  --chart-4: #0b5e3c;
+  --chart-5: #4f5f57;
+  --radius: 0.625rem;
+  --selection: #cfe8dc;
+  --scrollbar-thumb: #cfcdc2;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0b1512;
+  --foreground: #edefe9;
+  --card: #12201b;
+  --card-foreground: #edefe9;
+  --popover: #12201b;
+  --popover-foreground: #edefe9;
+  --primary: #3fcf8e;
+  --primary-foreground: #0b1512;
+  --primary-hover: #5adba0;
+  --primary-soft: #143326;
+  --secondary: #1a2b25;
+  --secondary-foreground: #edefe9;
+  --muted: #1a2b25;
+  --muted-foreground: #a9b5ae;
+  --accent: #1a2b25;
+  --accent-foreground: #edefe9;
+  --destructive: #f97066;
+  --border: #22352e;
+  --input: #2c4239;
+  --ring: #4cc9bd;
+  --info: #6fb1f0;
+  --info-foreground: #0b1512;
+  --info-soft: #14263a;
+  --teal: #4cc9bd;
+  --chart-1: #4cc9bd;
+  --chart-2: #3fcf8e;
+  --chart-3: #6fb1f0;
+  --chart-4: #5adba0;
+  --chart-5: #a9b5ae;
+  --selection: #1f4a37;
+  --scrollbar-thumb: #2c4239;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    caret-color: var(--primary);
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading;
+    text-wrap: balance;
+  }
+  p,
+  dd,
+  figcaption {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--selection);
+    color: var(--foreground);
+  }
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Wallet adapter modal (from @solana/wallet-adapter-react-ui), themed. */
+.wallet-adapter-modal-wrapper {
+  background: var(--card) !important;
+  color: var(--card-foreground);
+  font-family: var(--font-sans) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 16px 48px -12px rgb(11 21 18 / 0.35) !important;
+  border: 1px solid var(--border);
+}
+.wallet-adapter-modal-overlay {
+  background: rgb(11 21 18 / 0.55) !important;
+}
+.wallet-adapter-modal-title {
+  color: var(--card-foreground) !important;
+  font-family: var(--font-heading) !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button {
+  color: var(--card-foreground) !important;
+  font-family: var(--font-sans) !important;
+  border-radius: var(--radius-md) !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button:not([disabled]):hover {
+  background: var(--muted) !important;
+}
+.wallet-adapter-modal-list-more,
+.wallet-adapter-modal-middle-button {
+  color: var(--muted-foreground) !important;
+  font-family: var(--font-sans) !important;
+}
+.wallet-adapter-modal-button-close {
+  background: var(--muted) !important;
+}
+.wallet-adapter-modal-button-close svg {
+  fill: var(--muted-foreground) !important;
+}
+.wallet-adapter-button-end-icon,
+.wallet-adapter-button-start-icon {
+  border-radius: 6px;
+}

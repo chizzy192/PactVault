@@ -8,6 +8,11 @@ skip-lint = false
 [programs.localnet]
 pact_vault = "DQGA85XVQcpYtrUoTdiKowiekXPF7WcesLPLYB8XKbuh"
 
+# Same program ID on devnet: deployed from target/deploy/pact_vault-keypair.json.
+# Deploy with: anchor deploy --provider.cluster devnet
+[programs.devnet]
+pact_vault = "DQGA85XVQcpYtrUoTdiKowiekXPF7WcesLPLYB8XKbuh"
+
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
