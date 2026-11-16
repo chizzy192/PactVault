@@ -1,0 +1,27 @@
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Wallet and program keypairs: never commit these
+*keypair*.json
+id.json
+wallet*.json
+
+# Build output
+target/
+**/*.rs.bk
+
+# JavaScript dependencies
+node_modules/
+.yarn/
+
+# Local validator and Anchor state
+.anchor/
+test-ledger/
+.surfpool/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
